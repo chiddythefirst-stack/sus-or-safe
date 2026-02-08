@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 
 # -------------------------
 # App setup
@@ -57,20 +56,7 @@ if "index" not in st.session_state:
 if st.session_state.index < len(scenarios):
     scenario = scenarios[st.session_state.index]
 
-    # EYFS background - softer for readability
-    if level == "EYFS":
-        st.markdown(
-            """
-            <style>
-            .stApp {
-                background-color: #FFF8DC;  /* soft pastel cream */
-                color: #000000;  /* dark text for readability */
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-
+    # Show scenario text
     st.write(f"**Scenario:** {scenario['text']}")
 
     col1, col2 = st.columns(2)
