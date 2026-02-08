@@ -1,9 +1,31 @@
 import streamlit as st
+from PIL import Image
+import os
+
+# -------------------------
+# Helper function to load logo
+# -------------------------
+def load_logo(file_name="logo.png"):
+    path = os.path.join("assets", file_name)
+    if os.path.exists(path):
+        try:
+            return Image.open(path)
+        except:
+            st.warning(f"⚠️ Could not open logo: {file_name}")
+            return None
+    else:
+        st.warning(f"⚠️ Logo not found: {file_name}")
+        return None
 
 # -------------------------
 # App setup
 # -------------------------
 st.set_page_config(page_title="Sus or Safe", layout="centered")
+
+# Load and show logo
+logo = load_logo()
+if logo:
+    st.image(logo, width=120)
 
 st.title("🛡️ Sus or Safe: Internet Safety Game")
 
@@ -13,7 +35,7 @@ st.title("🛡️ Sus or Safe: Internet Safety Game")
 level = st.radio("Choose your level:", ["EYFS", "Primary"])
 
 # -------------------------
-# Scenarios
+# Scenarios (no images)
 # -------------------------
 eyfs_scenarios = [
     {"text": "You see a cartoon video from your teacher.", "answer": "green"},
