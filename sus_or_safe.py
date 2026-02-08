@@ -6,15 +6,24 @@ import os
 # Helper function
 # -------------------------
 def load_image(file_name):
-    """Load image from assets folder"""
-    return Image.open(os.path.join("assets", file_name))
+    """Load image safely. If not found, show a warning instead of crashing."""
+    path = os.path.join("assets", file_name)
+    if os.path.exists(path):
+        return Image.open(path)
+    else:
+        st.warning(f"⚠️ Image not found: {file_name}")
+        return None
 
 # -------------------------
 # App setup
 # -------------------------
 st.set_page_config(page_title="Sus or Safe", layout="centered")
 
-st.image(load_image("logo.png"), width=120)
+# Load and show logo safely
+logo = load_image("logo.png")
+if logo:
+    st.image(logo, width=120)
+
 st.title("🛡️ Sus or Safe: Internet Safety Game")
 
 # -------------------------
@@ -49,9 +58,7 @@ primary_scenarios = [
     {"text": "Someone in a chat group posts personal info about you.", "image": "primary_scenario10.png", "answer": "red"},
 ]
 
-# -------------------------
 # Pick scenarios based on level
-# -------------------------
 scenarios = eyfs_scenarios if level == "EYFS" else primary_scenarios
 
 # -------------------------
@@ -81,7 +88,11 @@ if st.session_state.index < len(scenarios):
             unsafe_allow_html=True
         )
     
-    st.image(load_image(scenario["image"]), width=300)
+    # Show scenario image safely
+    scenario_img = load_image(scenario["image"])
+    if scenario_img:
+        st.image(scenario_img, width=300)
+    
     st.write(f"**Scenario:** {scenario['text']}")
     
     col1, col2 = st.columns(2)
