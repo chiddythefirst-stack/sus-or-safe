@@ -5,11 +5,17 @@ import os
 # -------------------------
 # Helper function
 # -------------------------
-def load_image(file_name):
-    """Load image safely. If not found, show a warning instead of crashing."""
+def load_image_safe(file_name):
+    """
+    Load image safely. Returns PIL image if exists, else None.
+    """
     path = os.path.join("assets", file_name)
     if os.path.exists(path):
-        return Image.open(path)
+        try:
+            return Image.open(path)
+        except:
+            st.warning(f"⚠️ Could not open image: {file_name}")
+            return None
     else:
         st.warning(f"⚠️ Image not found: {file_name}")
         return None
@@ -19,8 +25,8 @@ def load_image(file_name):
 # -------------------------
 st.set_page_config(page_title="Sus or Safe", layout="centered")
 
-# Load and show logo safely
-logo = load_image("logo.png")
+# Load logo safely
+logo = load_image_safe("logo.png")
 if logo:
     st.image(logo, width=120)
 
@@ -58,7 +64,9 @@ primary_scenarios = [
     {"text": "Someone in a chat group posts personal info about you.", "image": "primary_scenario10.png", "answer": "red"},
 ]
 
+# -------------------------
 # Pick scenarios based on level
+# -------------------------
 scenarios = eyfs_scenarios if level == "EYFS" else primary_scenarios
 
 # -------------------------
@@ -89,7 +97,7 @@ if st.session_state.index < len(scenarios):
         )
     
     # Show scenario image safely
-    scenario_img = load_image(scenario["image"])
+    scenario_img = load_image_safe(scenario["image"])
     if scenario_img:
         st.image(scenario_img, width=300)
     
