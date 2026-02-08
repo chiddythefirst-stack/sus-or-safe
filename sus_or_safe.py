@@ -3,18 +3,21 @@ from PIL import Image
 import os
 
 # -------------------------
-# Helper function to load logo
+# Safe logo loader (logo in same folder as script)
 # -------------------------
 def load_logo(file_name="logo.png"):
-    path = os.path.join("assets", file_name)
-    if os.path.exists(path):
+    # Absolute path to the current script folder
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(base_path, file_name)
+
+    if os.path.exists(logo_path):
         try:
-            return Image.open(path)
+            return Image.open(logo_path)
         except:
-            st.warning(f"⚠️ Could not open logo: {file_name}")
+            st.warning("⚠️ Could not open the logo file.")
             return None
     else:
-        st.warning(f"⚠️ Logo not found: {file_name}")
+        st.info("Logo not found, continuing without logo.")
         return None
 
 # -------------------------
@@ -78,7 +81,6 @@ if "index" not in st.session_state:
 if st.session_state.index < len(scenarios):
     scenario = scenarios[st.session_state.index]
 
-    # Show scenario text
     st.write(f"**Scenario:** {scenario['text']}")
 
     col1, col2 = st.columns(2)
