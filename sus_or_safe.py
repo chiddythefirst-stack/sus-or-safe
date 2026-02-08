@@ -1,124 +1,119 @@
 import streamlit as st
-import random
+from PIL import Image
+import os
 
-st.set_page_config(
-    page_title="SUS or SAFE",
-    page_icon="🛡️",
-    layout="centered"
-)
+# -------------------------
+# Helper function
+# -------------------------
+def load_image(file_name):
+    """Load image from assets folder"""
+    return Image.open(os.path.join("assets", file_name))
 
-# ---------- STYLE ----------
-st.markdown("""
-<style>
-.title {
-    font-size:50px;
-    text-align:center;
-    color:#2E8B57;
-    font-weight:bold;
-}
-.scenario {
-    font-size:28px;
-    text-align:center;
-    padding:20px;
-}
-.score {
-    font-size:22px;
-    text-align:center;
-    color:#444;
-}
-.end {
-    font-size:36px;
-    text-align:center;
-    color:#FF9800;
-    font-weight:bold;
-}
-</style>
-""", unsafe_allow_html=True)
+# -------------------------
+# App setup
+# -------------------------
+st.set_page_config(page_title="Sus or Safe", layout="centered")
 
-# ---------- LOGO ----------
-st.image("logo.png", width=120)
+st.image(load_image("logo.png"), width=120)
+st.title("🛡️ Sus or Safe: Internet Safety Game")
 
-st.markdown('<div class="title">🛡️ SUS or SAFE 🛡️</div>', unsafe_allow_html=True)
+# -------------------------
+# Level selection
+# -------------------------
+level = st.radio("Choose your level:", ["EYFS", "Primary"])
 
-# ---------- LEVEL ----------
-level = st.radio("Choose Level 👇", ["EYFS", "Primary"], horizontal=True)
-
-# ---------- QUESTIONS ----------
-EYFS = [
-    ("Using the iPad with an adult 👩‍👧", "SAFE", "images/adult.png"),
-    ("A stranger says Hi 👋", "SUS", "images/stranger.png"),
-    ("Watching YouTube Kids 🎥", "SAFE", "images/youtube.png"),
-    ("Clicking a pop-up game 🎮", "SUS", "images/popup.png"),
-    ("Telling teacher when scared 🧑‍🏫", "SAFE", "images/teacher.png"),
+# -------------------------
+# Scenarios
+# -------------------------
+eyfs_scenarios = [
+    {"text": "You see a cartoon video from your teacher.", "image": "eyfs_scenario1.png", "answer": "green"},
+    {"text": "A friend sends you a sticker in a game.", "image": "eyfs_scenario2.png", "answer": "green"},
+    {"text": "Someone you don’t know asks your name.", "image": "eyfs_scenario3.png", "answer": "red"},
+    {"text": "A cartoon asks you to share your house address.", "image": "eyfs_scenario4.png", "answer": "red"},
+    {"text": "You get a safe coloring game on the tablet.", "image": "eyfs_scenario5.png", "answer": "green"},
+    {"text": "A stranger asks you to follow them.", "image": "eyfs_scenario6.png", "answer": "red"},
+    {"text": "You watch a fun animal video from your class.", "image": "eyfs_scenario7.png", "answer": "green"},
+    {"text": "Someone sends a scary picture.", "image": "eyfs_scenario8.png", "answer": "red"},
 ]
 
-PRIMARY = [
-    ("Someone asks for your name online 👤", "SUS", None),
-    ("Keeping your password secret 🔐", "SAFE", None),
-    ("YOU WON! Click here 🎁", "SUS", None),
-    ("Blocking someone mean 🚫", "SAFE", None),
-    ("Downloading a game without asking ❌", "SUS", None),
+primary_scenarios = [
+    {"text": "You receive a link from a friend to play a new online game.", "image": "primary_scenario1.png", "answer": "green"},
+    {"text": "An unknown person messages you asking for your password.", "image": "primary_scenario2.png", "answer": "red"},
+    {"text": "Your friend asks you to share a funny meme.", "image": "primary_scenario3.png", "answer": "green"},
+    {"text": "Someone you don’t know asks to video call you.", "image": "primary_scenario4.png", "answer": "red"},
+    {"text": "A website asks for your school login to access homework.", "image": "primary_scenario5.png", "answer": "green"},
+    {"text": "A pop-up asks you to download a random file.", "image": "primary_scenario6.png", "answer": "red"},
+    {"text": "A friend shares a link to an online quiz about school.", "image": "primary_scenario7.png", "answer": "green"},
+    {"text": "A stranger says you’ll win money if you click a link.", "image": "primary_scenario8.png", "answer": "red"},
+    {"text": "Your teacher sends you instructions for a school project.", "image": "primary_scenario9.png", "answer": "green"},
+    {"text": "Someone in a chat group posts personal info about you.", "image": "primary_scenario10.png", "answer": "red"},
 ]
 
-questions = EYFS if level == "EYFS" else PRIMARY
-TOTAL = len(questions)
+# -------------------------
+# Pick scenarios based on level
+# -------------------------
+scenarios = eyfs_scenarios if level == "EYFS" else primary_scenarios
 
-# ---------- SESSION STATE ----------
+# -------------------------
+# Session state for score and index
+# -------------------------
+if "score" not in st.session_state:
+    st.session_state.score = 0
 if "index" not in st.session_state:
     st.session_state.index = 0
-    st.session_state.score = 0
-    st.session_state.feedback = ""
-    st.session_state.order = random.sample(questions, TOTAL)
 
-# ---------- RESET BUTTON ----------
-if st.button("🔄 Reset Game"):
-    st.session_state.index = 0
-    st.session_state.score = 0
-    st.session_state.feedback = ""
-    st.session_state.order = random.sample(questions, TOTAL)
-    st.experimental_rerun()
-
-# ---------- END SCREEN ----------
-if st.session_state.index >= TOTAL:
-    st.markdown('<div class="end">🏆 INTERNET SAFETY HERO 🏆</div>', unsafe_allow_html=True)
-    st.markdown(f"### ⭐ Final Score: {st.session_state.score} / {TOTAL}")
+# -------------------------
+# Show scenario
+# -------------------------
+if st.session_state.index < len(scenarios):
+    scenario = scenarios[st.session_state.index]
+    
+    # EYFS colorful background
+    if level == "EYFS":
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background-color: #FFF1B5;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    
+    st.image(load_image(scenario["image"]), width=300)
+    st.write(f"**Scenario:** {scenario['text']}")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("🟢 Safe"):
+            if scenario["answer"] == "green":
+                st.success("✅ Correct!")
+                st.session_state.score += 1
+            else:
+                st.error("❌ Oops! That was unsafe!")
+            st.session_state.index += 1
+            st.experimental_rerun()
+            
+    with col2:
+        if st.button("🔴 Sus"):
+            if scenario["answer"] == "red":
+                st.success("✅ Correct!")
+                st.session_state.score += 1
+            else:
+                st.error("❌ Oops! That was safe!")
+            st.session_state.index += 1
+            st.experimental_rerun()
+else:
     st.balloons()
-    st.stop()
+    st.markdown(f"### 🎉 Well done! You scored {st.session_state.score} out of {len(scenarios)}")
+    st.write("Remember: Always think before sharing personal info online. Stay safe and smart! 🌐🛡️")
 
-# ---------- CURRENT QUESTION ----------
-question, answer, image = st.session_state.order[st.session_state.index]
-
-st.markdown(f'<div class="scenario">{question}</div>', unsafe_allow_html=True)
-
-if level == "EYFS" and image:
-    st.image(image, width=300)
-
-# ---------- BUTTONS ----------
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("🟢 SAFE"):
-        if answer == "SAFE":
-            st.session_state.feedback = "🎉 SAFE! WELL DONE!"
-            st.session_state.score += 1
-            st.audio("sounds/correct.mp3")
-        else:
-            st.session_state.feedback = "🚨 OOPS! THAT WAS SUS!"
-            st.audio("sounds/wrong.mp3")
-        st.session_state.index += 1
-        st.experimental_rerun()
-
-with col2:
-    if st.button("🔴 SUS"):
-        if answer == "SUS":
-            st.session_state.feedback = "🎉 CORRECT! THAT IS SUS!"
-            st.session_state.score += 1
-            st.audio("sounds/correct.mp3")
-        else:
-            st.session_state.feedback = "🚨 OOPS! THAT WAS SAFE!"
-            st.audio("sounds/wrong.mp3")
-        st.session_state.index += 1
-        st.experimental_rerun()
-
-# ---------- SCORE ----------
-st.markdown(f'<div class="score">⭐ Score: {st.session_state.score}</div>', unsafe_allow_html=True)
+# -------------------------
+# Reset button
+# -------------------------
+if st.button("🔄 Reset Game"):
+    st.session_state.score = 0
+    st.session_state.index = 0
+    st.experimental_rerun()
